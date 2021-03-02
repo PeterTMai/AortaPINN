@@ -167,3 +167,65 @@ class HFM(object):
             p_star = self.sess.run(self.p_data_pred, tf_dict)
             
             return u_star, v_star, w_star, p_star
+        
+
+if __name__ == "__main__": 
+      
+    batch_size = 10
+    
+    layers = [4] + 10*[5*50] + [5]
+    
+    # Load Data
+    data = scipy.io.loadmat('../Data/Aneurysm3D.mat')
+        
+    t_star = data['t_star'] # T x 1
+    x_star = data['x_star'] # N x 1
+    y_star = data['y_star'] # N x 1
+    z_star = data['z_star'] # N x 1
+
+    T = t_star.shape[0]
+    N = x_star.shape[0]
+        
+    U_star = data['U_star'] # N x T
+    V_star = data['V_star'] # N x T
+    W_star = data['W_star'] # N x T
+    P_star = data['P_star'] # N x T
+    
+    # Rearrange Data 
+    T_star = np.tile(t_star, (1,N)).T # N x T
+    X_star = np.tile(x_star, (1,T)) # N x T
+    Y_star = np.tile(y_star, (1,T)) # N x T
+    Z_star = np.tile(z_star, (1,T)) # N x T
+    
+    ######################################################################
+    ######################## Noiseles Data ###############################
+    ######################################################################
+    
+    T_data = T
+    N_data = N
+    idx_t = np.concatenate([np.array([0]), np.random.choice(T-2, T_data-2, replace=False)+1, np.array([T-1])] )
+    idx_x = np.random.choice(N, N_data, replace=False)
+    t_data = T_star[:, idx_t][idx_x,:].flatten()[:,None]
+    x_data = X_star[:, idx_t][idx_x,:].flatten()[:,None]
+    y_data = Y_star[:, idx_t][idx_x,:].flatten()[:,None]
+    z_data = Z_star[:, idx_t][idx_x,:].flatten()[:,None]
+    u_data = U_star[:, idx_t][idx_x,:].flatten()[:,None]
+    v_data = V_star[:, idx_t][idx_x,:].flatten()[:,None]
+    w_data = W_star[:, idx_t][idx_x,:].flatten()[:,None]
+    
+    T_eqns = T
+    N_eqns = N
+    idx_t = np.concatenate([np.array([0]), np.random.choice(T-2, T_eqns-2, replace=False)+1, np.array([T-1])] )
+    idx_x = np.random.choice(N, N_eqns, replace=False)
+    t_eqns = T_star[:, idx_t][idx_x,:].flatten()[:,None]
+    x_eqns = X_star[:, idx_t][idx_x,:].flatten()[:,None]
+    y_eqns = Y_star[:, idx_t][idx_x,:].flatten()[:,None]
+    z_eqns = Z_star[:, idx_t][idx_x,:].flatten()[:,None]
+        
+    # Training
+    model = HFM(t_data, x_data, y_data, z_data,
+                t_eqns, x_eqns, y_eqns, z_eqns,
+                u_data, v_data, w_data,
+                layers, batch_size, Rey = 1.0/0.0101822)
+    
+    model.train(total_time = 0.1, learning_rate=1e-3)
