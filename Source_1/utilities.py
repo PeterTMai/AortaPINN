@@ -86,9 +86,9 @@ class neural_net(object):
     
         return Y
 
-def Navier_Stokes_2D(c, u, v, p, t, x, y, Pec, Rey):
+def Navier_Stokes_2D(u, v, p, t, x, y, Rey):
     
-    Y = tf.concat([c, u, v, p], 1)
+    Y = tf.concat([u, v, p], 1)
     
     Y_t = fwd_gradients(Y, t)
     Y_x = fwd_gradients(Y, x)
@@ -96,39 +96,32 @@ def Navier_Stokes_2D(c, u, v, p, t, x, y, Pec, Rey):
     Y_xx = fwd_gradients(Y_x, x)
     Y_yy = fwd_gradients(Y_y, y)
     
-    c = Y[:,0:1]
-    u = Y[:,1:2]
-    v = Y[:,2:3]
-    p = Y[:,3:4]
+    u = Y[:,0:1]
+    v = Y[:,1:2]
+    p = Y[:,2:3]
     
-    c_t = Y_t[:,0:1]
-    u_t = Y_t[:,1:2]
-    v_t = Y_t[:,2:3]
+    u_t = Y_t[:,0:1]
+    v_t = Y_t[:,1:2]
     
-    c_x = Y_x[:,0:1]
-    u_x = Y_x[:,1:2]
-    v_x = Y_x[:,2:3]
-    p_x = Y_x[:,3:4]
+    u_x = Y_x[:,0:1]
+    v_x = Y_x[:,1:2]
+    p_x = Y_x[:,2:3]
     
-    c_y = Y_y[:,0:1]
-    u_y = Y_y[:,1:2]
-    v_y = Y_y[:,2:3]
-    p_y = Y_y[:,3:4]
+    u_y = Y_y[:,0:1]
+    v_y = Y_y[:,1:2]
+    p_y = Y_y[:,2:3]
     
-    c_xx = Y_xx[:,0:1]
-    u_xx = Y_xx[:,1:2]
-    v_xx = Y_xx[:,2:3]
+    u_xx = Y_xx[:,0:1]
+    v_xx = Y_xx[:,1:2]
     
-    c_yy = Y_yy[:,0:1]
-    u_yy = Y_yy[:,1:2]
-    v_yy = Y_yy[:,2:3]
+    u_yy = Y_yy[:,0:1]
+    v_yy = Y_yy[:,1:2]
     
-    e1 = c_t + (u*c_x + v*c_y) - (1.0/Pec)*(c_xx + c_yy)
-    e2 = u_t + (u*u_x + v*u_y) + p_x - (1.0/Rey)*(u_xx + u_yy) 
-    e3 = v_t + (u*v_x + v*v_y) + p_y - (1.0/Rey)*(v_xx + v_yy)
-    e4 = u_x + v_y
+    e1 = u_t + (u*u_x + v*u_y) + p_x - (1.0/Rey)*(u_xx + u_yy) 
+    e2 = v_t + (u*v_x + v*v_y) + p_y - (1.0/Rey)*(v_xx + v_yy)
+    e3 = u_x + v_y
     
-    return e1, e2, e3, e4
+    return e1, e2, e3
 
 def Gradient_Velocity_2D(u, v, x, y):
     
@@ -155,9 +148,9 @@ def Strain_Rate_2D(u, v, x, y):
     
     return [eps11dot, eps12dot, eps22dot]
 
-def Navier_Stokes_3D(c, u, v, w, p, t, x, y, z, Pec, Rey):
+def Navier_Stokes_3D(u, v, w, p, t, x, y, z, Rey):
     
-    Y = tf.concat([c, u, v, w, p], 1)
+    Y = tf.concat([u, v, w, p], 1)
     
     Y_t = fwd_gradients(Y, t)
     Y_x = fwd_gradients(Y, x)
@@ -167,57 +160,48 @@ def Navier_Stokes_3D(c, u, v, w, p, t, x, y, z, Pec, Rey):
     Y_yy = fwd_gradients(Y_y, y)
     Y_zz = fwd_gradients(Y_z, z)
     
-    c = Y[:,0:1]
-    u = Y[:,1:2]
-    v = Y[:,2:3]
-    w = Y[:,3:4]
-    p = Y[:,4:5]
+    u = Y[:,0:1]
+    v = Y[:,1:2]
+    w = Y[:,2:3]
+    p = Y[:,3:4]
     
-    c_t = Y_t[:,0:1]
-    u_t = Y_t[:,1:2]
-    v_t = Y_t[:,2:3]
-    w_t = Y_t[:,3:4]
+    u_t = Y_t[:,0:1]
+    v_t = Y_t[:,1:2]
+    w_t = Y_t[:,2:3]
     
-    c_x = Y_x[:,0:1]
-    u_x = Y_x[:,1:2]
-    v_x = Y_x[:,2:3]
-    w_x = Y_x[:,3:4]
-    p_x = Y_x[:,4:5]
+    u_x = Y_x[:,0:1]
+    v_x = Y_x[:,1:2]
+    w_x = Y_x[:,2:3]
+    p_x = Y_x[:,3:4]
     
-    c_y = Y_y[:,0:1]
-    u_y = Y_y[:,1:2]
-    v_y = Y_y[:,2:3]
-    w_y = Y_y[:,3:4]
-    p_y = Y_y[:,4:5]
+    u_y = Y_y[:,0:1]
+    v_y = Y_y[:,1:2]
+    w_y = Y_y[:,2:3]
+    p_y = Y_y[:,3:4]
        
-    c_z = Y_z[:,0:1]
-    u_z = Y_z[:,1:2]
-    v_z = Y_z[:,2:3]
-    w_z = Y_z[:,3:4]
-    p_z = Y_z[:,4:5]
+    u_z = Y_z[:,0:1]
+    v_z = Y_z[:,1:2]
+    w_z = Y_z[:,2:3]
+    p_z = Y_z[:,3:4]
     
-    c_xx = Y_xx[:,0:1]
-    u_xx = Y_xx[:,1:2]
-    v_xx = Y_xx[:,2:3]
-    w_xx = Y_xx[:,3:4]
+    u_xx = Y_xx[:,0:1]
+    v_xx = Y_xx[:,1:2]
+    w_xx = Y_xx[:,2:3]
     
-    c_yy = Y_yy[:,0:1]
-    u_yy = Y_yy[:,1:2]
-    v_yy = Y_yy[:,2:3]
-    w_yy = Y_yy[:,3:4]
+    u_yy = Y_yy[:,0:1]
+    v_yy = Y_yy[:,1:2]
+    w_yy = Y_yy[:,2:3]
        
-    c_zz = Y_zz[:,0:1]
-    u_zz = Y_zz[:,1:2]
-    v_zz = Y_zz[:,2:3]
-    w_zz = Y_zz[:,3:4]
+    u_zz = Y_zz[:,0:1]
+    v_zz = Y_zz[:,1:2]
+    w_zz = Y_zz[:,2:3]
     
-    e1 = c_t + (u*c_x + v*c_y + w*c_z) - (1.0/Pec)*(c_xx + c_yy + c_zz)
-    e2 = u_t + (u*u_x + v*u_y + w*u_z) + p_x - (1.0/Rey)*(u_xx + u_yy + u_zz)
-    e3 = v_t + (u*v_x + v*v_y + w*v_z) + p_y - (1.0/Rey)*(v_xx + v_yy + v_zz)
-    e4 = w_t + (u*w_x + v*w_y + w*w_z) + p_z - (1.0/Rey)*(w_xx + w_yy + w_zz)
-    e5 = u_x + v_y + w_z
+    e1 = u_t + (u*u_x + v*u_y + w*u_z) + p_x - (1.0/Rey)*(u_xx + u_yy + u_zz)
+    e2 = v_t + (u*v_x + v*v_y + w*v_z) + p_y - (1.0/Rey)*(v_xx + v_yy + v_zz)
+    e3 = w_t + (u*w_x + v*w_y + w*w_z) + p_z - (1.0/Rey)*(w_xx + w_yy + w_zz)
+    e4 = u_x + v_y + w_z
     
-    return e1, e2, e3, e4, e5
+    return e1, e2, e3, e4
 
 def Gradient_Velocity_3D(u, v, w, x, y, z):
     
