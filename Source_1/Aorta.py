@@ -176,7 +176,7 @@ if __name__ == "__main__":
     layers = [4] + 10*[5*50] + [5]
     
     # Load Data
-    data = scipy.io.loadmat('../Data/Aneurysm3D.mat')
+    data = scipy.io.loadmat('../Data/Aorta.mat')
         
     t_star = data['t_star'] # T x 1
     x_star = data['x_star'] # N x 1
