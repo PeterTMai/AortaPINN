@@ -45,13 +45,7 @@ class HFM(object):
         # physics "uninformed" neural networks
         self.net_cuvwp = neural_net(self.t_data, self.x_data, self.y_data, self.z_data, layers = self.layers)
         
-        [self.u_data_pred,
-         self.v_data_pred,
-         self.w_data_pred,
-         self.p_data_pred] = self.net_cuvwp(self.t_data_tf,
-                                            self.x_data_tf,
-                                            self.y_data_tf,
-                                            self.z_data_tf)
+        [self.u_data_pred, self.v_data_pred, self.w_data_pred, self.p_data_pred] = self.net_cuvwp(self.t_data_tf, self.x_data_tf, self.y_data_tf, self.z_data_tf)
          
         # physics "informed" neural networks
         [self.u_eqns_pred,
@@ -82,8 +76,7 @@ class HFM(object):
                     mean_squared_error(self.e1_eqns_pred, 0.0) + \
                     mean_squared_error(self.e2_eqns_pred, 0.0) + \
                     mean_squared_error(self.e3_eqns_pred, 0.0) + \
-                    mean_squared_error(self.e4_eqns_pred, 0.0) + \
-                    mean_squared_error(self.e5_eqns_pred, 0.0)
+                    mean_squared_error(self.e4_eqns_pred, 0.0)
         
         # optimizers
         self.learning_rate = tf.compat.v1.placeholder(tf.float32, shape=[])
@@ -93,87 +86,88 @@ class HFM(object):
         self.sess = tf_session()
         
         
-        def train(self, total_time, learning_rate):
+    def train(self, total_time, learning_rate):
+    
+        N_data = self.t_data.shape[0]
+        N_eqns = self.t_eqns.shape[0]
+           
+        start_time = time.time()
+        running_time = 0
+        it = 0
+        while running_time < total_time:
+                
+            idx_data = np.random.choice(N_data, self.batch_size)
+            idx_eqns = np.random.choice(N_eqns, self.batch_size)
+            
+            (t_data_batch,
+             x_data_batch,
+             y_data_batch,
+             z_data_batch,
+             u_data_batch,
+             v_data_batch,
+             w_data_batch) = (self.t_data[idx_data,:],
+                              self.x_data[idx_data,:],
+                              self.y_data[idx_data,:],
+                              self.z_data[idx_data,:],
+                              self.u_data[idx_data,:],
+                              self.v_data[idx_data,:],
+                              self.w_data[idx_data,:])
+    
+            (t_eqns_batch,
+             x_eqns_batch,
+             y_eqns_batch,
+             z_eqns_batch) = (self.t_eqns[idx_eqns,:],
+                              self.x_eqns[idx_eqns,:],
+                              self.y_eqns[idx_eqns,:],
+                              self.z_eqns[idx_eqns,:])
+    
+    
+            tf_dict = {self.t_data_tf: t_data_batch,
+                       self.x_data_tf: x_data_batch,
+                       self.y_data_tf: y_data_batch,
+                       self.z_data_tf: z_data_batch,
+                       self.u_data_tf: u_data_batch,
+                       self.v_data_tf: v_data_batch,
+                       self.w_data_tf: w_data_batch,
+                       self.t_eqns_tf: t_eqns_batch,
+                       self.x_eqns_tf: x_eqns_batch,
+                       self.y_eqns_tf: y_eqns_batch,
+                       self.z_eqns_tf: z_eqns_batch,
+                       self.learning_rate: learning_rate}
+                
+            self.sess.run([self.train_op], tf_dict)
+                
+            # Print
+            if it % 10 == 0:
+                elapsed = time.time() - start_time
+                running_time += elapsed/3600.0
+                [loss_value,
+                 learning_rate_value] = self.sess.run([self.loss,
+                                                       self.learning_rate], tf_dict)
+                print('It: %d, Loss: %.3e, Time: %.2fs, Running Time: %.2fh, Learning Rate: %.1e'
+                      %(it, loss_value, elapsed, running_time, learning_rate_value))
+                sys.stdout.flush()
+                start_time = time.time()
+            it += 1
+                
+    def predict(self, t_star, x_star, y_star, z_star):
+    
+        tf_dict = {self.t_data_tf: t_star, self.x_data_tf: x_star, self.y_data_tf: y_star, self.z_data_tf: z_star}
         
-            N_data = self.t_data.shape[0]
-            N_eqns = self.t_eqns.shape[0]
-            
-            start_time = time.time()
-            running_time = 0
-            it = 0
-            while running_time < total_time:
-                
-                idx_data = np.random.choice(N_data, self.batch_size)
-                idx_eqns = np.random.choice(N_eqns, self.batch_size)
-                
-                (t_data_batch,
-                 x_data_batch,
-                 y_data_batch,
-                 z_data_batch,
-                 u_data_batch,
-                 v_data_batch,
-                 w_data_batch) = (self.t_data[idx_data,:],
-                                  self.x_data[idx_data,:],
-                                  self.y_data[idx_data,:],
-                                  self.z_data[idx_data,:],
-                                  self.u_data[idx_data,:],
-                                  self.v_data[idx_data,:],
-                                  self.w_data[idx_data,:])
-    
-                (t_eqns_batch,
-                 x_eqns_batch,
-                 y_eqns_batch,
-                 z_eqns_batch) = (self.t_eqns[idx_eqns,:],
-                                  self.x_eqns[idx_eqns,:],
-                                  self.y_eqns[idx_eqns,:],
-                                  self.z_eqns[idx_eqns,:])
-    
-    
-                tf_dict = {self.t_data_tf: t_data_batch,
-                           self.x_data_tf: x_data_batch,
-                           self.y_data_tf: y_data_batch,
-                           self.z_data_tf: z_data_batch,
-                           self.u_data_tf: u_data_batch,
-                           self.v_data_tf: v_data_batch,
-                           self.w_data_tf: w_data_batch,
-                           self.t_eqns_tf: t_eqns_batch,
-                           self.x_eqns_tf: x_eqns_batch,
-                           self.y_eqns_tf: y_eqns_batch,
-                           self.z_eqns_tf: z_eqns_batch,
-                           self.learning_rate: learning_rate}
-                
-                self.sess.run([self.train_op], tf_dict)
-                
-                # Print
-                if it % 10 == 0:
-                    elapsed = time.time() - start_time
-                    running_time += elapsed/3600.0
-                    [loss_value,
-                     learning_rate_value] = self.sess.run([self.loss,
-                                                           self.learning_rate], tf_dict)
-                    print('It: %d, Loss: %.3e, Time: %.2fs, Running Time: %.2fh, Learning Rate: %.1e'
-                          %(it, loss_value, elapsed, running_time, learning_rate_value))
-                    sys.stdout.flush()
-                    start_time = time.time()
-                it += 1
-                
-        def predict(self, t_star, x_star, y_star, z_star):
-        
-            tf_dict = {self.t_data_tf: t_star, self.x_data_tf: x_star, self.y_data_tf: y_star, self.z_data_tf: z_star}
-            
-            u_star = self.sess.run(self.u_data_pred, tf_dict)
-            v_star = self.sess.run(self.v_data_pred, tf_dict)
-            w_star = self.sess.run(self.w_data_pred, tf_dict)
-            p_star = self.sess.run(self.p_data_pred, tf_dict)
-            
-            return u_star, v_star, w_star, p_star
+        u_star = self.sess.run(self.u_data_pred, tf_dict)
+        v_star = self.sess.run(self.v_data_pred, tf_dict)
+        w_star = self.sess.run(self.w_data_pred, tf_dict)
+        p_star = self.sess.run(self.p_data_pred, tf_dict)
+           
+        return u_star, v_star, w_star, p_star
         
 
 if __name__ == "__main__": 
-      
-    batch_size = 10
+    tf.compat.v1.disable_eager_execution() # turning off eager execution
     
-    layers = [4] + 10*[5*50] + [5]
+    batch_size = 1
+    
+    layers = [4] + 10*[5*1] + [4]
     
     # Load Data
     data = scipy.io.loadmat('../Data/Aorta.mat')
