@@ -16,5 +16,5 @@ hostname
 date
 echo ""
 source /share/apps/source_files/python/python-3.8.5.source
-
+cd /home/petermai/AortaPINN/AortaPINN
 python3 Source/Aorta.py > aorta
