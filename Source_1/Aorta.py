@@ -290,5 +290,5 @@ if __name__ == "__main__":
         print('Error w: %e' % (error_w))
         print('Error p: %e' % (error_p))
 
-    scipy.io.savemat('../Results/Aneurysm3D_results_%s.mat' %(time.strftime('%d_%m_%Y')),
+    scipy.io.savemat('../Results/Aorta3D_results_%s.mat' %(time.strftime('%d_%m_%Y')),
                      {'U_pred':U_pred, 'V_pred':V_pred, 'W_pred':W_pred, 'P_pred':P_pred})
