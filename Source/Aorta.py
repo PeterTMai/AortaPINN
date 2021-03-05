@@ -225,7 +225,7 @@ if __name__ == "__main__":
     model = HFM(t_data, x_data, y_data, z_data,
                 t_eqns, x_eqns, y_eqns, z_eqns,
                 u_data, v_data, w_data,
-                layers, batch_size, Rey = 1.0/0.0101822)
+                layers, batch_size, Rey = 1015)
 
     model.train(total_time = 10, learning_rate=1e-3)
 
