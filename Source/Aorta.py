@@ -175,7 +175,7 @@ if __name__ == "__main__":
     layers = [4] + 10*[5*50] + [4]
 
     # Load Data
-    data = scipy.io.loadmat('../Data/Aorta.mat')
+    data = scipy.io.loadmat('../Data/Aorta_nondim.mat')
 
     t_star = data['t_star'] # T x 1
     x_star = data['x_star'] # N x 1
@@ -227,7 +227,7 @@ if __name__ == "__main__":
                 u_data, v_data, w_data,
                 layers, batch_size, Rey = 1015)
 
-    model.train(total_time = 10, learning_rate=1e-3)
+    model.train(total_time = 60, learning_rate=1e-3)
 
     # Test Data
     snap = np.array([100])
