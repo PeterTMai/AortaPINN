@@ -1,5 +1,5 @@
 """
-@author: Maziar Raissi
+@author: Thanh Trung Mai
 """
 
 import tensorflow as tf
@@ -10,7 +10,8 @@ import sys
 
 from utilities import neural_net, Navier_Stokes_3D, \
                       tf_session, mean_squared_error, relative_error
-    
+
+
 class HFM(object):
     # notational conventions
     # _tf: placeholders for input/output data andpoints used to regress the equations
@@ -166,18 +167,19 @@ class HFM(object):
         return u_star, v_star, w_star, p_star
 
 
-
-if __name__ == "__main__": 
-    
+if __name__ == "__main__":
     tf.compat.v1.disable_eager_execution() # turning off eager execution
-    
+
     batch_size = 10000
-    
+
     layers = [4] + 10*[5*50] + [4]
-    
+
     # Load Data
-    data = scipy.io.loadmat('../Data/Aneurysm3D.mat')
-        
+    data = scipy.io.loadmat('../Data/Aorta_nondim.mat')
+    data2 = scipy.io.loadmat('../Data/Aorta_narrow_nondim.mat')
+    data3 = scipy.io.loadmat('../Data/Aorta_expand_nondim.mat')
+    data4 = scipy.io.loadmat('../Data/Aorta_rough_nondim.mat')
+
     t_star = data['t_star'] # T x 1
     x_star = data['x_star'] # N x 1
     y_star = data['y_star'] # N x 1
@@ -221,14 +223,15 @@ if __name__ == "__main__":
     x_eqns = X_star[:, idx_t][idx_x,:].flatten()[:,None]
     y_eqns = Y_star[:, idx_t][idx_x,:].flatten()[:,None]
     z_eqns = Z_star[:, idx_t][idx_x,:].flatten()[:,None]
-        
+
     # Training
     model = HFM(t_data, x_data, y_data, z_data,
                 t_eqns, x_eqns, y_eqns, z_eqns,
                 u_data, v_data, w_data,
-                layers, batch_size, Rey = 1.0/0.0101822)
-    
-    model.train(total_time = 40, learning_rate=1e-3)
+                layers, batch_size, Rey = 1015)
+
+    print("Starting to train")
+    model.train(total_time = 0.1, learning_rate=1e-3)
 
     # Test Data
     snap = np.array([100])
@@ -290,6 +293,6 @@ if __name__ == "__main__":
         print('Error v: %e' % (error_v))
         print('Error w: %e' % (error_w))
         print('Error p: %e' % (error_p))
-        
-    scipy.io.savemat('../Results/Aneurysm3D_results_%s.mat' %(time.strftime('%d_%m_%Y')),
+
+    scipy.io.savemat('../Results/Aorta3D_results_%s.mat' %(time.strftime('%d_%m_%Y')),
                      {'U_pred':U_pred, 'V_pred':V_pred, 'W_pred':W_pred, 'P_pred':P_pred})

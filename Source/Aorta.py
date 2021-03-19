@@ -170,9 +170,9 @@ class HFM(object):
 if __name__ == "__main__":
     tf.compat.v1.disable_eager_execution() # turning off eager execution
 
-    batch_size = 10000
+    batch_size = 1
 
-    layers = [4] + 10*[5*50] + [4]
+    layers = [4] + 1*[5*50] + [4]
 
     # Load Data
     data = scipy.io.loadmat('../Data/Aorta_nondim.mat')
