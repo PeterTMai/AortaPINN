@@ -5,7 +5,7 @@
 #$ -l tmem=15.9G
 #$ -l h_vmem=15.9G
 
-#$ -l h_rt=120:00:00
+#$ -l h_rt=100:00:00
 
 # -S /bin/bash
 # -j y
