@@ -19,3 +19,4 @@ echo ""
 source /share/apps/source_files/python/python-3.8.5.source
 cd /home/petermai/AortaPINN/AortaPINN/Source
 python3 Aorta_pressure.py > aorta_nondim_pressure
+git 
