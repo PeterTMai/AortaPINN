@@ -233,7 +233,7 @@ if __name__ == "__main__":
                 u_data, v_data, w_data, p_data,
                 layers, batch_size, Rey = 1015)
 
-    model.train(total_time = 90, learning_rate=1e-3)
+    model.train(total_time = 2, learning_rate=1e-4)
 
     # Test Data
     snap = np.array([100])

@@ -170,9 +170,9 @@ class HFM(object):
 if __name__ == "__main__":
     tf.compat.v1.disable_eager_execution() # turning off eager execution
 
-    batch_size = 1
+    batch_size = 10000
 
-    layers = [4] + 1*[5*50] + [4]
+    layers = [4] + 10*[5*50] + [4]
 
     # Load Data
     data = scipy.io.loadmat('../Data/Aorta_nondim.mat')
@@ -227,7 +227,7 @@ if __name__ == "__main__":
                 u_data, v_data, w_data,
                 layers, batch_size, Rey = 1015)
 
-    model.train(total_time = 60, learning_rate=1e-3)
+    model.train(total_time = 1, learning_rate=1e-4)
 
     # Test Data
     snap = np.array([100])

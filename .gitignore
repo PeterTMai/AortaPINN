@@ -3,6 +3,7 @@ node_modules/
 someOtherfoler/
 Data/
 Results/
+**/__pycache__
 
 
 # Compiled source #
