@@ -2,10 +2,10 @@
 
 #$ -S /bin/bash
 
-#$ -l tmem=63.9G
-#$ -l h_vmem=63.9G
+#$ -l tmem=32G
+#$ -l h_vmem=32G
 
-#$ -l h_rt=5:00:00
+#$ -l h_rt=15:00:00
 #$ -l gpu=true
 #$ -R y
 # -S /bin/bash
