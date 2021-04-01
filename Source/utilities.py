@@ -4,6 +4,7 @@
 
 import tensorflow as tf
 import numpy as np
+import pickle
 
 def tf_session():
     # tf session
@@ -85,6 +86,26 @@ class neural_net(object):
         Y = tf.split(H, num_or_size_splits=H.shape[1], axis=1)
     
         return Y
+
+    def load_NN(self,fileDir):
+        self.weights = []
+        self.biases = []
+        self.gammas = []
+        with open(fileDir, 'rb') as f:
+            weights, biases, gammas = pickle.load(f)
+
+            # Stored model must has the same # of layers
+            assert len(self.layers)-1 == (len(weights))
+
+            for num in range(0, len(self.layers) - 1):
+                W = tf.Variable(weights[num], dtype=tf.float32)
+                b = tf.Variable(biases[num], dtype=tf.float32)
+                g = tf.Variable(gammas[num], dtype=tf.float32)
+                self.weights.append(tf.Variable(W, dtype=tf.float32, trainable=True))
+                self.biases.append(tf.Variable(b, dtype=tf.float32, trainable=True))
+                self.gammas.append(tf.Variable(g, dtype=tf.float32, trainable=True))
+                print(" - Load NN parameters successfully...")
+
 
 def Navier_Stokes_2D(u, v, p, t, x, y, Rey):
     
