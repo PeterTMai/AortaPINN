@@ -37,7 +37,7 @@ class HFM(object):
         [self.t_data_tf, self.x_data_tf, self.y_data_tf, self.z_data_tf,
          self.u_data_tf, self.v_data_tf, self.w_data_tf] = [tf.compat.v1.placeholder(tf.float32, shape=[None, 1]) for _ in range(7)]
         [self.t_eqns_tf, self.x_eqns_tf, self.y_eqns_tf, self.z_eqns_tf] = [tf.compat.v1.placeholder(tf.float32, shape=[None, 1]) for _ in range(4)]
-
+        [self.nx_eqns_tf, self.ny_eqns_tf, self.nz_eqns_tf] = [tf.compat.v1.placeholder(tf.float32, shape=[None, 1]) for _ in range(3)]
 
 
         self.net_cuvwp = neural_net(self.t_data, self.x_data, self.y_data, self.z_data, layers = self.layers)
@@ -76,10 +76,23 @@ class HFM(object):
                                                self.z_eqns_tf,
                                                self.Rey)
 
+        [self.sx_eqns_pred,
+         self.sy_eqns_pred,
+         self.sz_eqns_pred] = Shear_Stress_3D(self.u_eqns_pred,
+                                              self.v_eqns_pred,
+                                              self.w_eqns_pred,
+                                              self.x_eqns_tf,
+                                              self.y_eqns_tf,
+                                              self.z_eqns_tf,
+                                              self.nx_eqns_tf,
+                                              self.ny_eqns_tf,
+                                              self.nz_eqns_tf,
+                                              self.Rey)
+
         # loss
         self.loss = (mean_squared_error(self.u_data_pred, self.u_data_tf) + \
                     mean_squared_error(self.v_data_pred, self.v_data_tf) + \
-                    mean_squared_error(self.w_data_pred, self.w_data_tf))*10 + \
+                    mean_squared_error(self.w_data_pred, self.w_data_tf))*100 + \
                     mean_squared_error(self.e1_eqns_pred, 0.0) + \
                     mean_squared_error(self.e2_eqns_pred, 0.0) + \
                     mean_squared_error(self.e3_eqns_pred, 0.0) + \
@@ -169,7 +182,6 @@ class HFM(object):
         return u_star, v_star, w_star, p_star
 
 
-
     def save_NN(self, fileDir):
 
         nn_weights = self.sess.run(self.net_cuvwp.weights)
@@ -179,6 +191,18 @@ class HFM(object):
         with open(fileDir, 'wb') as f:
             pickle.dump([nn_weights, nn_biases, nn_gammas], f)
             print("Save uv NN parameters successfully...")
+
+
+    def predict_shear(self, t_star, x_star, y_star, z_star, nx_star, ny_star, nz_star):
+        
+        tf_dict = {self.t_eqns_tf: t_star, self.x_eqns_tf: x_star, self.y_eqns_tf: y_star, self.z_eqns_tf: z_star,
+                   self.nx_eqns_tf: nx_star, self.ny_eqns_tf: ny_star, self.nz_eqns_tf: nz_star}
+        
+        sx_star = self.sess.run(self.sx_eqns_pred, tf_dict)
+        sy_star = self.sess.run(self.sy_eqns_pred, tf_dict)
+        sz_star = self.sess.run(self.sz_eqns_pred, tf_dict)
+        
+        return sx_star, sy_star, sz_star
 
 
 def tf_session():

@@ -13,8 +13,21 @@ if __name__ == "__main__":
 
     layers = [4] + 10*[5*50] + [4]
 
+    # # Load Shear Data
+    # data_shear = scipy.io.loadmat('../Data/real_Aorta_shear_nondim.mat')
+    
+    # xb_star = data_shear['xb_star'] 
+    # yb_star = data_shear['yb_star']
+    # zb_star = data_shear['zb_star']
+    # nx_star = data_shear['nx_star']
+    # ny_star = data_shear['ny_star']
+    # nz_star = data_shear['nz_star']
+    # Sx_star = data_shear['Sx_star']
+    # Sy_star = data_shear['Sy_star']
+    # Sz_star = data_shear['Sz_star']
+
     # Load Data
-    data = scipy.io.loadmat('../Data/Aorta_expand_nondim_small.mat')
+    data = scipy.io.loadmat('../Data/Aorta_nondim.mat')
 
     t_star = data['t_star'] # T x 1
     x_star = data['x_star'] # N x 1
@@ -64,13 +77,16 @@ if __name__ == "__main__":
     model = HFM(t_data, x_data, y_data, z_data,
                 t_eqns, x_eqns, y_eqns, z_eqns,
                 u_data, v_data, w_data,
-                layers, batch_size, Rey = 1015, ExistModel=1, uvDir='NS_NN_10_04_2021.pickle')
+                layers, batch_size, Rey = 1015, ExistModel=1, uvDir='NS_NN_expand_05_05_2021.pickle')
 
     ################# Save Data ###########################
     U_pred = 0*U_star
     V_pred = 0*V_star
     W_pred = 0*W_star
     P_pred = 0*P_star
+    # Sx_pred = 0*Sx_star
+    # Sy_pred = 0*Sy_star
+    # Sz_pred = 0*Sz_star
     for snap in range(0,t_star.shape[0]):
         t_test = T_star[:,snap:snap+1]
         x_test = X_star[:,snap:snap+1]
@@ -82,13 +98,24 @@ if __name__ == "__main__":
         w_test = W_star[:,snap:snap+1]
         p_test = P_star[:,snap:snap+1]
 
-        # Prediction
+        ## Prediction
+
+        # Velocity
         u_pred, v_pred, w_pred, p_pred = model.predict(t_test, x_test, y_test, z_test)
+        
+        # Shear
+        # sx_pred, sy_pred, sz_pred = model.predict_shear(t_test[0] + 0.0*xb_star,
+        #                                                 xb_star, yb_star, zb_star,
+        #                                                 nx_star, ny_star, nz_star)
 
         U_pred[:,snap:snap+1] = u_pred
         V_pred[:,snap:snap+1] = v_pred
         W_pred[:,snap:snap+1] = w_pred
         P_pred[:,snap:snap+1] = p_pred
+
+        # Sx_pred[:,snap:snap+1] = sx_pred
+        # Sy_pred[:,snap:snap+1] = sy_pred
+        # Sz_pred[:,snap:snap+1] = sz_pred
 
         # Error
         error_u = relative_error(u_pred, u_test)
@@ -101,5 +128,9 @@ if __name__ == "__main__":
         print('Error w: %e' % (error_w))
         print('Error p: %e' % (error_p))
 
-    scipy.io.savemat('../Results/Aorta3D_results_expand_weighted_%s.mat' %(time.strftime('%d_%m_%Y')),
+    # scipy.io.savemat('../Results/Aorta3D_results_rough_weighted_%s.mat' %(time.strftime('%d_%m_%Y')),
+    #                  {'U_pred':U_pred, 'V_pred':V_pred, 'W_pred':W_pred, 'P_pred':P_pred,
+    #                   'Sx_pred':Sx_pred, 'Sy_pred':Sy_pred, 'Sz_pred':Sz_pred})
+
+    scipy.io.savemat('../Results/Aorta3D_results_normal_coarse_transfer_weighted_%s.mat' %(time.strftime('%d_%m_%Y')),
                      {'U_pred':U_pred, 'V_pred':V_pred, 'W_pred':W_pred, 'P_pred':P_pred})
