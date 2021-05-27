@@ -14,7 +14,7 @@ Source/__pycache__
 *.exe
 *.o
 *.so
-
+*.pickle
 *.so
 
 # Packages #
