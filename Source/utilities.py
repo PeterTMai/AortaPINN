@@ -8,6 +8,7 @@ import pickle
 import time
 import sys
 
+
 class HFM(object):
     # notational conventions
     # _tf: placeholders for input/output data andpoints used to regress the equations
